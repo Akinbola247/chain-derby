@@ -157,43 +157,28 @@ function ChainRaceTrack({ result, index }: { result: RaceResult, index: number }
     position = 30;
   }
   
-  // Animation styles for horses - only animate during the race
-  const animation = 
-    result.status === "racing" ? 
-      "animation: horse-run 500ms infinite ease-in-out" : 
-      "";
       
   // Determine if this track should get a highlight effect (just finished)
   const shouldHighlight = result.status === "success" && result.position && result.position <= 3;
   
   return (
     <div className="relative h-30 my-0">
-      {/* Trophy positioned to the right side of the track for top 3 finishers */}
-      {shouldHighlight && (
-        <div className="absolute right-42 bottom-1/2 z-2 rounded-full p-2 flex items-center justify-center animate-drop-in">
-          <Image 
-                src={`/trophy_${result.position}.png`} 
-                alt={`${result.position} Trophy`} 
-                width={83} 
-                height={100}
-                style={{ width: 'auto', height: 'auto' }}
-              />         
-        </div>
-      )}
       
       {/* Confetti effect for 1st place */}
       {result.position === 1 && result.status === "success" && (
         <>
-          {[...Array(10)].map((_, i) => (
+          {[...Array(8)].map((_, i) => (
             <div 
               key={i}
-              className="z-20 w-2 h-2 rounded-full pointer-events-none"
+              className="absolute z-30 rounded-full pointer-events-none"
               style={{
-                left: `${20 + (i * 10)}%`,
-                top: "0",
-                backgroundColor: ['#FFD700', '#FF8C00', '#FF1493', '#00BFFF', '#32CD32'][i % 5],
-                animation: `confetti-fall ${0.5 + (i * 0.1)}s ease-out forwards`,
-                animationDelay: `${0.1 * i}s`
+                width: 'clamp(4px, 1vw, 8px)',
+                height: 'clamp(4px, 1vw, 8px)',
+                right: `clamp(${40 + (i * 6)}px, ${8 + (i * 2)}vw, ${8 + (i * 6)}px)`,
+                top: "clamp(8px, 2vh, 16px)",
+                backgroundColor: ['#FFD700', '#FF8C00', '#FF1493', '#00BFFF', '#32CD32', '#FF69B4', '#00FF7F', '#FF4500'][i % 8],
+                animation: `confetti-fall ${0.8 + (i * 0.15)}s ease-out forwards`,
+                animationDelay: `${0.15 * i}s`
               }}
             />
           ))}
@@ -273,47 +258,58 @@ function ChainRaceTrack({ result, index }: { result: RaceResult, index: number }
       
       {/* Horse on the track */}
       <div 
-        className="absolute top-1/2 w-full ml-[-190]"
+        className="absolute top-1/2 w-full"
         style={{ 
-          left: 0, 
-          transform: `translate(${position}%, -70%)`, /* Move horses down by adjusting translateY from -50% to -30% */
+          left: 'clamp(-140px, -12vw, -40px)', // Better positioning across all screens
+          transform: `translateX(${position * 0.77}%) translateY(-70%)`,
           zIndex: result.status === "error" ? 1 : 5,
-          width: "180",
-          height: "172px",
-          transition: "transform 0.6s",
+          transition: "transform 0.6s ease-in-out",
+          marginLeft: `15%`
         }}
       >
         {result.status !== "pending" && (
-          <div className="relative" style={{ animation }}>
-            <div className="relative">
-              <div className="w-[180] h-[172] relative overflow-hidden">
-                <Image 
-                  src="/horse_sprite.png" 
-                  alt={`${result.name} Horse`} 
-                  width={1080} 
-                  height={172}
-                  className="max-w-none animate-sprite"
-                  style={{
-                    animationPlayState: result.status === "success" ? 'paused' : 'running'
-                  }}
-                />
-              </div>
-              
+          <div className="relative">
+            {/* Responsive horse sprite using background image */}
+            <div
+              className="w-[clamp(60px,15vw,180px)] aspect-[180/172] relative overflow-visible bg-no-repeat bg-[length:600%_100%]"
+              style={{ 
+                backgroundImage: "url('/horse_sprite.png')",
+                animation: result.status === "success" 
+                  ? 'none' 
+                  : 'horseRun 0.5s steps(6) infinite'
+              }}
+            >
               {/* Chain logo on the white square of the horse */}
-              <div className="absolute" style={{ left: "67px", top: "100px" }}>
+              <div 
+                className="absolute top-[58%] left-[37%] -translate-x-1/2 -translate-y-1/2"
+              >
                 <Image 
                   src={result.logo || "/logos/rise.png"}
                   alt={`${result.name} Logo`}
                   width={20}
                   height={20}
-                  style={{ 
-                    borderRadius: "50%",
-                  }}
+                  className="w-[clamp(8px,2.5vw,20px)] h-[clamp(8px,2.5vw,20px)] rounded-full"
                 />
               </div>
+
+              {/* Trophy positioned just behind the horse for top 3 finishers */}
+              {shouldHighlight && (
+                <div 
+                  className="absolute top-1/2 -translate-y-1/2 z-10 animate-drop-in"
+                  style={{
+                    left: 'clamp(-40px, -8vw, -20px)', // Position behind the horse
+                  }}
+                >
+                  <Image 
+                    src={`/trophy_${result.position}.png`} 
+                    alt={`${result.position} Trophy`} 
+                    width={83} 
+                    height={100}
+                    className="w-[clamp(20px,6vw,60px)] h-auto object-contain"
+                  />         
+                </div>
+              )}
             </div>
-            
-            {/* Horse trophy removed as requested */}
           </div>
         )}
       </div>
