@@ -3,7 +3,7 @@
 import { useChainRaceContext } from "@/providers/ChainRaceProvider";
 import { type RaceResult } from "@/hooks/useChainRace";
 import { Button, CardContent } from "@/components/ui";
-import { Loader2, XCircle, Trophy, Clock, RefreshCw, Play } from "lucide-react";
+import { Loader2, XCircle, Clock, RefreshCw, Play } from "lucide-react";
 import Image from "next/image";
 
 export function ChainRace() {
@@ -194,9 +194,9 @@ function ChainRaceTrack({ result, index }: { result: RaceResult, index: number }
         />
       </div>
       
-      {/* Chain name label on the left */}
-      <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-900/90 rounded-lg px-3 py-2 shadow-md min-w-[240px]">
-        <div className="flex items-center gap-3">
+      {/* Chain name label on the left - responsive sizing */}
+      <div className="absolute left-1 sm:left-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-900/90 rounded-lg shadow-md px-2 py-1 sm:px-3 sm:py-2 min-w-[120px] sm:min-w-[240px] max-w-[140px] sm:max-w-[320px]">
+        <div className="flex items-center gap-1 sm:gap-3">
           {/* Chain logo */}
           <div className="flex-shrink-0">
             <Image 
@@ -204,37 +204,41 @@ function ChainRaceTrack({ result, index }: { result: RaceResult, index: number }
               alt={`${result.name} Logo`}
               width={36}
               height={36}
+              className="w-4 h-4 sm:w-9 sm:h-9 rounded-full"
               style={{ 
-                borderRadius: "50%",
-                boxShadow: "0 0 4px rgba(0,0,0,0.2)"
+                boxShadow: "0 0 2px rgba(0,0,0,0.2)"
               }}
             />
           </div>
-          <div className="flex flex-col overflow-hidden">
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-bold text-black dark:text-white truncate">{result.name}</span>
+          <div className="flex flex-col overflow-hidden min-w-0 flex-1">
+            <div className="flex items-center gap-1 sm:gap-2">
+              <span className="font-semibold sm:font-bold text-black dark:text-white truncate text-xs sm:text-xl">
+                {result.name}
+              </span>
               {result.status === "success" && result.position && result.position <= 3 && (
-                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                <span className={`font-bold rounded-full text-center text-xs sm:text-xs px-1 py-0.5 sm:px-2 sm:py-0.5 ${
                   result.position === 1 ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-600 dark:text-yellow-100" :
                   result.position === 2 ? "bg-gray-100 text-gray-700 dark:bg-gray-600 dark:text-gray-100" :
                   "bg-amber-100 text-amber-800 dark:bg-amber-600 dark:text-amber-100"
                 }`}>
-                  {result.position === 1 ? (
-                    <span className="flex items-center gap-0.5">
-                      <Trophy className="h-2.5 w-2.5" /> 1st
-                    </span>
-                  ) : result.position === 2 ? "2nd" : "3rd"}
+                  <span className="block sm:hidden">{result.position === 1 ? "🏆" : result.position}</span>
+                  <span className="hidden sm:flex items-center gap-0.5">
+                    {result.position === 1 ? "🏆 1st" : result.position === 2 ? "2nd" : "3rd"}
+                  </span>
                 </span>
               )}
             </div>
-            <div className="flex flex-col text-xs text-gray-600 dark:text-gray-300 mt-0.5">
+            <div className="flex flex-col text-gray-600 dark:text-gray-300 text-xs sm:text-xs mt-0.5">
               {result.status === "success" && result.averageLatency && (
-                <div className="flex justify-between gap-2">
+                <div className="flex justify-between gap-1 sm:gap-2">
                   <span className="flex items-center font-medium">
-                    <Clock size={10} className="inline mr-1" /> {result.averageLatency}ms avg
+                    <Clock size={6} className="inline mr-1 sm:hidden" />
+                    <Clock size={10} className="hidden sm:inline sm:mr-1" />
+                    <span className="sm:hidden">{result.averageLatency}ms</span>
+                    <span className="hidden sm:inline">{result.averageLatency}ms avg</span>
                   </span>
                   {result.totalLatency && (
-                    <span className="text-gray-500 dark:text-gray-400">
+                    <span className="hidden sm:inline text-gray-500 dark:text-gray-400">
                       {(result.totalLatency / 1000).toFixed(2)}s total
                     </span>
                   )}
@@ -242,13 +246,16 @@ function ChainRaceTrack({ result, index }: { result: RaceResult, index: number }
               )}
               {result.status === "racing" && (
                 <span className="flex items-center">
-                  <Loader2 size={10} className="inline mr-1 animate-spin" /> 
+                  <Loader2 size={6} className="inline mr-1 animate-spin sm:hidden" />
+                  <Loader2 size={10} className="hidden sm:inline sm:mr-1 sm:animate-spin" />
                   {result.txCompleted}/{result.txTotal} tx
                 </span>
               )}
               {result.status === "error" && (
                 <span className="flex items-center text-red-500">
-                  <XCircle size={10} className="inline mr-1" /> Failed
+                  <XCircle size={6} className="inline mr-1 sm:hidden" />
+                  <XCircle size={10} className="hidden sm:inline sm:mr-1" />
+                  Failed
                 </span>
               )}
             </div>
